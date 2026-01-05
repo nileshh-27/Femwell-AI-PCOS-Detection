@@ -1,0 +1,138 @@
+Build a modern, responsive web frontend for an AI-powered PCOS Detection & Women’s Health Platform called “FemWell AI”.
+
+🎯 Goal
+
+Design a production-grade UI focused on clarity, trust, and usability for young women. The frontend should feel medical, calming, and premium, not experimental.
+
+🧩 Core Pages & Features
+1️⃣ Landing Page
+
+Hero section with:
+
+Tagline: “Early PCOS Detection. Smarter Decisions.”
+
+Short explanation of PCOS and why early detection matters
+
+Feature highlights (cards):
+
+AI Risk Prediction
+
+Symptom Tracking
+
+Lifestyle Insights
+
+Privacy & Data Security
+
+CTA buttons:
+
+“Check PCOS Risk”
+
+“Learn About PCOS”
+
+2️⃣ PCOS Risk Assessment Page
+
+Multi-step form (stepper UI)
+
+Inputs:
+
+Age
+
+Height, Weight (auto BMI calculation)
+
+Menstrual cycle regularity
+
+Acne / Hair growth / Hair loss (checkboxes)
+
+Family history (yes/no)
+
+Lifestyle indicators (exercise, sleep)
+
+Clean validation, progress indicator
+
+Submit button (mocked – no backend yet)
+
+3️⃣ Results Page (Mocked Data)
+
+AI Risk Score (Low / Medium / High)
+
+Circular progress chart or gauge
+
+Key contributing factors (visual bars)
+
+Disclaimer: “Not a medical diagnosis”
+
+Buttons:
+
+“Download Report (UI only)”
+
+“Improve My Lifestyle”
+
+4️⃣ Lifestyle & Guidance Page
+
+Diet recommendations
+
+Exercise suggestions
+
+Stress & sleep tips
+
+Use cards, icons, and calm colors
+
+5️⃣ About PCOS Page
+
+What is PCOS?
+
+Symptoms
+
+Long-term risks
+
+When to consult a doctor
+
+🎨 UI / UX Requirements
+
+Use modern design (rounded cards, soft shadows)
+
+Color palette:
+
+Soft lavender, teal, white, pastel gradients
+
+Typography:
+
+Clean sans-serif (medical friendly)
+
+Fully responsive (mobile-first)
+
+Smooth transitions & hover effects
+
+🛠 Tech Stack
+
+Frontend only
+
+React + Vite (preferred)
+
+Tailwind CSS (no Bootstrap)
+
+Chart library for mock graphs (Recharts or Chart.js)
+
+Use dummy/mock data
+
+🚫 Constraints
+
+No backend
+
+No authentication logic (UI placeholders allowed)
+
+No APIs
+
+Keep code clean and modular
+
+🧠 Extra Polish
+
+Add loading states
+
+Add empty states
+
+Add accessibility-friendly labels
+
+Add subtle animations (Framer Motion optional)
+
+Output only frontend code, structured cleanly with reusable components.
