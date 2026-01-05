@@ -1,18 +1,36 @@
-import { sql } from "drizzle-orm";
-import { pgTable, text, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+// === TABLE DEFINITIONS ===
+export const assessments = pgTable("assessments", {
+  id: serial("id").primaryKey(),
+  age: integer("age").notNull(),
+  height: integer("height").notNull(), // cm
+  weight: integer("weight").notNull(), // kg
+  cycleRegularity: text("cycle_regularity", { enum: ["regular", "irregular", "absent"] }).notNull(),
+  symptoms: text("symptoms").array().notNull(), // acne, hair_growth, hair_loss, etc.
+  familyHistory: boolean("family_history").notNull(),
+  exerciseFrequency: text("exercise_frequency", { enum: ["sedentary", "moderate", "active"] }).notNull(),
+  sleepQuality: text("sleep_quality", { enum: ["good", "fair", "poor"] }).notNull(),
+  riskScore: text("risk_score", { enum: ["low", "medium", "high"] }), // Computed by backend/mock
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+// === SCHEMAS ===
+export const insertAssessmentSchema = createInsertSchema(assessments).omit({ 
+  id: true, 
+  riskScore: true 
 });
 
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
+// === EXPLICIT TYPES ===
+export type Assessment = typeof assessments.$inferSelect;
+export type InsertAssessment = z.infer<typeof insertAssessmentSchema>;
+
+export type AssessmentResult = {
+  riskScore: "low" | "medium" | "high";
+  confidence: number;
+  contributingFactors: string[];
+  recommendations: string[];
+};
+
+export type CreateAssessmentRequest = InsertAssessment;

@@ -1,38 +1,50 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { db } from "./db";
+import {
+  assessments,
+  type InsertAssessment,
+  type AssessmentResult
+} from "@shared/schema";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  createAssessment(assessment: InsertAssessment): Promise<AssessmentResult>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+export class DatabaseStorage implements IStorage {
+  async createAssessment(assessment: InsertAssessment): Promise<AssessmentResult> {
+    // In a real app, this would be an AI model.
+    // Here we implement a simple rule-based mock for the demo.
+    
+    let score = 0;
+    const factors: string[] = [];
+    
+    if (assessment.cycleRegularity !== 'regular') {
+      score += 2;
+      factors.push("Irregular Menstrual Cycle");
+    }
+    
+    if (assessment.familyHistory) {
+      score += 1;
+      factors.push("Family History");
+    }
+    
+    if (assessment.symptoms.includes("acne") || assessment.symptoms.includes("hair_growth")) {
+      score += 1;
+      factors.push("Androgenic Symptoms");
+    }
 
-  constructor() {
-    this.users = new Map();
-  }
-
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+    const riskScore = score >= 3 ? "high" : score >= 1 ? "medium" : "low";
+    
+    return {
+      riskScore,
+      confidence: 85,
+      contributingFactors: factors,
+      recommendations: [
+        "Consult with a healthcare provider",
+        "Maintain a balanced diet rich in whole foods",
+        "Regular moderate exercise"
+      ]
+    };
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
