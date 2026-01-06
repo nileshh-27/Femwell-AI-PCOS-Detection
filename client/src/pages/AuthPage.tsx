@@ -31,7 +31,7 @@ export default function AuthPage() {
           title: "Success",
           description: "Logged in successfully",
         });
-        setLocation("/");
+        window.location.href = "/";
       } else {
         toast({
           title: "Error",
@@ -44,7 +44,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -53,18 +53,18 @@ export default function AuthPage() {
       >
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-2 group">
-            <div className="p-3 rounded-2xl bg-gradient-to-tr from-primary to-secondary shadow-lg shadow-primary/20">
+            <div className="p-3 rounded-2xl bg-purple-600 shadow-lg">
               <HeartPulse className="h-8 w-8 text-white" />
             </div>
-            <span className="font-display font-bold text-3xl tracking-tight text-foreground">
-              FemWell<span className="text-primary">AI</span>
+            <span className="font-bold text-3xl tracking-tight text-gray-900">
+              FemWellAI
             </span>
           </div>
         </div>
 
-        <Card className="glass-card border-none shadow-2xl">
+        <Card className="border-none shadow-2xl bg-white">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-display font-bold">
+            <CardTitle className="text-2xl font-bold">
               {isLogin ? "Welcome Back" : "Create Account"}
             </CardTitle>
             <CardDescription>
@@ -78,7 +78,7 @@ export default function AuthPage() {
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input 
                     id="email" 
                     type="email" 
@@ -93,7 +93,7 @@ export default function AuthPage() {
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input 
                     id="password" 
                     type="password" 
@@ -107,7 +107,7 @@ export default function AuthPage() {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
-              <Button type="submit" className="w-full h-11 text-lg font-semibold shadow-lg shadow-primary/20" disabled={isLoading}>
+              <Button type="submit" className="w-full h-11 text-lg font-semibold bg-purple-600 hover:bg-purple-700 text-white" disabled={isLoading}>
                 {isLoading ? (
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 ) : (
@@ -118,13 +118,13 @@ export default function AuthPage() {
                 )}
               </Button>
               <div className="text-center text-sm">
-                <span className="text-muted-foreground">
+                <span className="text-gray-500">
                   {isLogin ? "Don't have an account?" : "Already have an account?"}
                 </span>{" "}
                 <button
                   type="button"
                   onClick={() => setIsLogin(!isLogin)}
-                  className="text-primary font-semibold hover:underline"
+                  className="text-purple-600 font-semibold hover:underline"
                 >
                   {isLogin ? "Sign up" : "Sign in"}
                 </button>
