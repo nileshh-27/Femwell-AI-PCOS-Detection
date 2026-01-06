@@ -39,6 +39,11 @@
   --chart-3: 320 80% 60%; /* Pink */
   --chart-4: 40 90% 60%;  /* Amber */
   --chart-5: 220 70% 60%; /* Blue */
+
+  /* Legacy fonts for compatibility */
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: Menlo, monospace;
 }
 
 .dark {
