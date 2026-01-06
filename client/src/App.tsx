@@ -20,8 +20,14 @@ function Router() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const auth = localStorage.getItem("femwell_auth") === "true";
-    setIsAuthenticated(auth);
+    const checkAuth = () => {
+      const auth = localStorage.getItem("femwell_auth") === "true";
+      setIsAuthenticated(auth);
+    };
+    
+    checkAuth();
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
   }, []);
 
   if (isAuthenticated === null) {
@@ -58,15 +64,13 @@ function Router() {
   );
 }
 
-function App() {
+export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
         <Router />
+        <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
   );
 }
-
-export default App;
