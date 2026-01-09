@@ -50,7 +50,7 @@ export default function Assessment() {
     mode: "onChange",
   });
 
-  const { register, handleSubmit, watch, trigger, formState: { errors, isValid } } = form;
+  const { register, handleSubmit, watch, trigger, setValue, formState: { errors, isValid } } = form;
   const formData = watch();
 
   // Calculate BMI for display
@@ -102,7 +102,13 @@ export default function Assessment() {
 
       <Steps currentStep={step} totalSteps={STEPS.length} labels={STEPS.map(s => s.title)} />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.preventDefault();
+        }}
+        className="space-y-8"
+      >
         <div className="glass-card p-8 rounded-3xl min-h-[400px] flex flex-col justify-center relative overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div
@@ -239,31 +245,33 @@ export default function Assessment() {
                   <div className="space-y-6">
                     <div>
                       <label className="block text-sm font-medium mb-3">Family History of PCOS?</label>
+                      <input type="hidden" {...register("familyHistory")} />
                       <div className="flex gap-4">
-                        {[
-                          { value: true, label: "Yes" },
-                          { value: false, label: "No" }
-                        ].map((opt) => (
-                          <label 
-                            key={String(opt.value)}
-                            className={cn(
-                              "flex-1 flex items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all",
-                              watch("familyHistory") === opt.value
-                                ? "border-primary bg-primary/5 font-bold text-primary" 
-                                : "border-transparent bg-background hover:bg-muted"
-                            )}
-                          >
-                            <input
-                              type="radio"
-                              value={String(opt.value)}
-                              {...register("familyHistory", { 
-                                setValueAs: v => v === "true" 
-                              })}
-                              className="sr-only"
-                            />
-                            {opt.label}
-                          </label>
-                        ))}
+                        <button
+                          type="button"
+                          onClick={() => setValue("familyHistory", true, { shouldDirty: true, shouldValidate: true })}
+                          className={cn(
+                            "flex-1 flex items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all",
+                            watch("familyHistory") === true
+                              ? "border-primary bg-primary/5 font-bold text-primary"
+                              : "border-transparent bg-background hover:bg-muted"
+                          )}
+                        >
+                          Yes
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setValue("familyHistory", false, { shouldDirty: true, shouldValidate: true })}
+                          className={cn(
+                            "flex-1 flex items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all",
+                            watch("familyHistory") === false
+                              ? "border-primary bg-primary/5 font-bold text-primary"
+                              : "border-transparent bg-background hover:bg-muted"
+                          )}
+                        >
+                          No
+                        </button>
                       </div>
                     </div>
 
@@ -318,7 +326,8 @@ export default function Assessment() {
             </button>
           ) : (
             <button
-              type="submit"
+              type="button"
+              onClick={handleSubmit(onSubmit)}
               disabled={isSubmitting}
               className="px-8 py-3 rounded-xl font-bold bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
             >

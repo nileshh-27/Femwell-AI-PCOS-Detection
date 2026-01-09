@@ -66,6 +66,12 @@ export type AssessmentResult = {
   confidence: number;
   contributingFactors: string[];
   recommendations: string[];
+  // Screening output (not a diagnosis)
+  pcosLikelihood: "unlikely" | "possible" | "likely";
+  pcosPossible: boolean;
+  // 0..1 probability from ML model (or heuristic fallback)
+  pcosProbability: number;
+  modelVersion: string;
 };
 
 export type CreateAssessmentRequest = InsertAssessment;

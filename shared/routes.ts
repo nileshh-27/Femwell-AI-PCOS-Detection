@@ -25,7 +25,11 @@ export const api = {
           riskScore: z.enum(["low", "medium", "high"]),
           confidence: z.number(),
           contributingFactors: z.array(z.string()),
-          recommendations: z.array(z.string())
+          recommendations: z.array(z.string()),
+          pcosLikelihood: z.enum(["unlikely", "possible", "likely"]),
+          pcosPossible: z.boolean(),
+          pcosProbability: z.number(),
+          modelVersion: z.string(),
         }),
         400: errorSchemas.validation,
       },

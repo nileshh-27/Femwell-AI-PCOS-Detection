@@ -1,0 +1,77 @@
+{
+  "rows": {
+    "train": 693750,
+    "test": 231250
+  },
+  "columns": {
+    "numeric": [
+      "age",
+      "height_cm",
+      "weight_kg",
+      "bmi",
+      "symptom_acne",
+      "symptom_hair_growth",
+      "symptom_hair_loss",
+      "family_history"
+    ],
+    "categorical": [
+      "cycle_regularity",
+      "exercise_frequency",
+      "sleep_quality"
+    ]
+  },
+  "scores": {
+    "accuracy": 0.7235762162162163,
+    "precision": 0.5679234629193612,
+    "recall": 0.6952421942249002,
+    "f1": 0.6251663861801251,
+    "roc_auc": 0.7838064373679423
+  },
+  "confusion_matrix": [
+    [
+      114020,
+      40556
+    ],
+    [
+      23367,
+      53307
+    ]
+  ],
+  "classification_report": {
+    "0": {
+      "precision": 0.82991840567157,
+      "recall": 0.7376306800538247,
+      "f1-score": 0.7810578737716766,
+      "support": 154576.0
+    },
+    "1": {
+      "precision": 0.5679234629193612,
+      "recall": 0.6952421942249002,
+      "f1-score": 0.6251663861801251,
+      "support": 76674.0
+    },
+    "accuracy": 0.7235762162162163,
+    "macro avg": {
+      "precision": 0.6989209342954656,
+      "recall": 0.7164364371393624,
+      "f1-score": 0.7031121299759009,
+      "support": 231250.0
+    },
+    "weighted avg": {
+      "precision": 0.7430505127393199,
+      "recall": 0.7235762162162163,
+      "f1-score": 0.729369986551808,
+      "support": 231250.0
+    }
+  },
+  "model": {
+    "type": "logistic_regression",
+    "random_state": 42
+  },
+  "label": {
+    "column": "pcos_label",
+    "drop_columns": [
+      "label_source"
+    ]
+  }
+}

@@ -11,6 +11,21 @@ interface ResultData {
   confidence: number;
   contributingFactors: string[];
   recommendations: string[];
+  pcosLikelihood: "unlikely" | "possible" | "likely";
+  pcosPossible: boolean;
+  pcosProbability: number;
+  modelVersion: string;
+}
+
+function deriveScreeningFromRisk(riskScore: ResultData["riskScore"]) {
+  const pcosLikelihood: ResultData["pcosLikelihood"] =
+    riskScore === "low" ? "unlikely" : riskScore === "medium" ? "possible" : "likely";
+  return {
+    pcosLikelihood,
+    pcosPossible: pcosLikelihood !== "unlikely",
+    pcosProbability: riskScore === "low" ? 0.2 : riskScore === "medium" ? 0.5 : 0.8,
+    modelVersion: "screening-rule-v1",
+  };
 }
 
 export default function Results() {
@@ -35,11 +50,23 @@ export default function Results() {
           : await apiRequest("GET", "/api/assessments/latest");
 
         const row = (await res.json()) as any;
+
+        const screening =
+          row?.pcosLikelihood && row?.modelVersion
+            ? {
+                pcosLikelihood: row.pcosLikelihood,
+                pcosPossible: Boolean(row.pcosPossible),
+                pcosProbability: Number(row.pcosProbability ?? (row.confidence != null ? Number(row.confidence) / 100 : 0.5)),
+                modelVersion: String(row.modelVersion),
+              }
+            : deriveScreeningFromRisk(row.riskScore);
+
         setResult({
           riskScore: row.riskScore,
           confidence: row.confidence,
           contributingFactors: row.contributingFactors ?? [],
           recommendations: row.recommendations ?? [],
+          ...screening,
         });
       } catch {
         setLocation("/assessment");
@@ -61,8 +88,8 @@ export default function Results() {
   };
 
   const chartData = [
-    { name: "Risk", value: result.confidence },
-    { name: "Remaining", value: 100 - result.confidence },
+    { name: "Probability", value: Math.round(result.pcosProbability * 100) },
+    { name: "Remaining", value: 100 - Math.round(result.pcosProbability * 100) },
   ];
 
   return (
@@ -97,8 +124,8 @@ export default function Results() {
                   cy="50%"
                   innerRadius={80}
                   outerRadius={100}
-                  startAngle={180}
-                  endAngle={0}
+                  startAngle={90}
+                  endAngle={-270}
                   paddingAngle={5}
                   dataKey="value"
                   stroke="none"
@@ -108,17 +135,20 @@ export default function Results() {
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
-            <div className="absolute inset-0 flex flex-col items-center justify-center pt-10">
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-5xl font-display font-bold" style={{ color: getRiskColor(result.riskScore) }}>
-                {result.riskScore.toUpperCase()}
+                {Math.round(result.pcosProbability * 100)}%
               </span>
-              <span className="text-muted-foreground font-medium mt-1">Risk Level</span>
+              <span className="text-muted-foreground font-medium mt-1">PCOS Screening</span>
+              <span className="text-sm font-semibold mt-1" style={{ color: getRiskColor(result.riskScore) }}>
+                {result.pcosLikelihood.toUpperCase()}
+              </span>
             </div>
           </div>
           
           <div className="mt-4 max-w-sm">
             <p className="text-muted-foreground">
-              Our AI analysis indicates a <strong>{result.riskScore} probability</strong> of PCOS markers based on your inputs.
+              Our screening model (<strong>{result.modelVersion}</strong>) estimates a <strong>{Math.round(result.pcosProbability * 100)}%</strong> chance of PCOS markers based on your inputs.
             </p>
           </div>
         </motion.div>

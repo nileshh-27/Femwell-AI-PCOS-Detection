@@ -71,7 +71,7 @@ export async function registerRoutes(
   app.post("/api/assessments", requireAnyAuth, async (req, res) => {
     try {
       const input = insertAssessmentSchema.parse(req.body);
-      const result = computeAssessmentResult(input);
+      const result = await computeAssessmentResult(input);
 
       const userId = String(req.authUserId);
 
@@ -109,7 +109,8 @@ export async function registerRoutes(
       .limit(1);
 
     if (!row) return res.status(404).json({ message: "Not found" });
-    return res.json(row);
+    const screening = await computeAssessmentResult(row);
+    return res.json({ ...row, ...screening });
   });
 
   app.get("/api/assessments/:id", requireAnyAuth, async (req, res) => {
@@ -124,7 +125,8 @@ export async function registerRoutes(
       .limit(1);
 
     if (!row) return res.status(404).json({ message: "Not found" });
-    return res.json(row);
+    const screening = await computeAssessmentResult(row);
+    return res.json({ ...row, ...screening });
   });
 
   app.delete("/api/assessments", requireAnyAuth, async (req, res) => {

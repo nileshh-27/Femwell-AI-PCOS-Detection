@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { HeartPulse, Menu, X, Activity, BookOpen, Info, LayoutDashboard, LogOut, Settings, User } from "lucide-react";
+import { HeartPulse, Menu, X, Activity, BookOpen, Info, LayoutDashboard, LogOut, Settings, User, Scan } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,6 +13,7 @@ export function Layout({ children }: { children: ReactNode }) {
   const navItems = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
     { href: "/assessment", label: "Check Risk", icon: Activity },
+    { href: "/scanner", label: "Report Scanner", icon: Scan },
     { href: "/guidance", label: "Guidance", icon: BookOpen },
     { href: "/about", label: "Resources", icon: Info },
   ];

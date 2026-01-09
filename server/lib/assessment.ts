@@ -1,6 +1,7 @@
 import type { InsertAssessment, AssessmentResult } from "@shared/schema";
+import { computePcosScreening } from "./pcosModel";
 
-export function computeAssessmentResult(assessment: InsertAssessment): AssessmentResult {
+export async function computeAssessmentResult(assessment: InsertAssessment): Promise<AssessmentResult> {
   let score = 0;
   const factors: string[] = [];
 
@@ -19,16 +20,19 @@ export function computeAssessmentResult(assessment: InsertAssessment): Assessmen
     factors.push("Androgenic Symptoms");
   }
 
-  const riskScore = score >= 3 ? "high" : score >= 1 ? "medium" : "low";
+  const riskScore: AssessmentResult["riskScore"] = score >= 3 ? "high" : score >= 1 ? "medium" : "low";
+
+  const screening = await computePcosScreening(assessment, riskScore);
 
   return {
     riskScore,
-    confidence: 85,
+    confidence: Math.round(screening.pcosProbability * 100),
     contributingFactors: factors,
     recommendations: [
       "Consult with a healthcare provider",
       "Maintain a balanced diet rich in whole foods",
       "Regular moderate exercise",
     ],
+    ...screening,
   };
 }

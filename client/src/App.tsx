@@ -18,6 +18,7 @@ import AuthPage from "@/pages/AuthPage";
 import Profile from "@/pages/Profile";
 import Settings from "@/pages/Settings";
 import SignOut from "@/pages/SignOut";
+import ReportScanner from "@/pages/ReportScanner";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -50,6 +51,7 @@ function Router() {
             <Route path="/about" component={About} />
             <Route path="/profile" component={Profile} />
             <Route path="/settings" component={Settings} />
+            <Route path="/scanner" component={ReportScanner} />
             <Route path="/signout" component={SignOut} />
             <Route component={NotFound} />
           </Switch>
