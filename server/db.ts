@@ -10,5 +10,16 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const connectionString = process.env.DATABASE_URL;
+
+const sslRequired =
+  process.env.DATABASE_SSL === "true" ||
+  process.env.PGSSLMODE === "require" ||
+  /sslmode=require/i.test(connectionString) ||
+  /ssl=true/i.test(connectionString);
+
+export const pool = new Pool({
+  connectionString,
+  ssl: sslRequired ? { rejectUnauthorized: false } : undefined,
+});
 export const db = drizzle(pool, { schema });
