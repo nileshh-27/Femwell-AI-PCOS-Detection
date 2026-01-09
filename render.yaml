@@ -4,7 +4,7 @@ services:
     env: docker
     plan: free
     autoDeploy: true
-    healthCheckPath: /api/auth/user
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production

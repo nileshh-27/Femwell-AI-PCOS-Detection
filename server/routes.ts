@@ -14,6 +14,12 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  // Public health check endpoint for hosting providers (e.g. Render).
+  // Must not require auth or DB connectivity.
+  app.get("/api/health", (_req, res) => {
+    return res.status(200).json({ status: "ok" });
+  });
+
   // Always enable password-based auth endpoints.
   registerPasswordAuthRoutes(app);
 
