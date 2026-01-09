@@ -37,7 +37,9 @@ React	UI framework
 Vite	Fast frontend tooling
 Node.js	Build & dev environment
 Netlify	Frontend hosting
+
 📂 Project Structure
+```
 FemWell-AI-PCOS-Detection/
 ├── client/          # Frontend (React + Vite)
 ├── server/          # Backend (Express API)
@@ -47,9 +49,10 @@ FemWell-AI-PCOS-Detection/
 ├── render.yaml      # Render blueprint (optional)
 ├── netlify.toml     # Netlify config + /api proxy
 └── README.md        # Project documentation
-
+```
 
 🔗 API Routes (Core)
+```
 Route	Method	Description
 /api/health	GET	Health check
 /api/auth/register	POST	Register user (email & password)
@@ -60,6 +63,7 @@ Route	Method	Description
 /api/assessments/latest	GET	Fetch latest assessment
 /api/assessments/:id	GET	Fetch assessment by ID
 /api/profile	GET / PUT / DELETE	Profile read / update / delete
+```
 🤖 AI Model Details
 
 Model Type: scikit-learn pipeline (Logistic Regression)
