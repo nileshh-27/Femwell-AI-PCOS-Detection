@@ -5,8 +5,16 @@ WORKDIR /app
 
 # System deps for Python inference
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends python3 python3-pip \
+  && apt-get install -y --no-install-recommends python3 python3-pip python3-venv \
   && rm -rf /var/lib/apt/lists/*
+
+# Create an isolated Python environment (avoids PEP 668 "externally-managed-environment")
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install Python deps for ML inference (cached layer)
+COPY dataset/requirements.txt ./dataset/requirements.txt
+RUN pip install --no-cache-dir -r dataset/requirements.txt
 
 # Install Node deps (includes devDeps for build)
 COPY package.json package-lock.json ./
@@ -15,14 +23,11 @@ RUN npm ci
 # Copy source
 COPY . .
 
-# Install Python deps for ML inference
-RUN pip3 install --no-cache-dir -r dataset/requirements.txt
-
 # Build client+server into dist/
 RUN npm run build
 
 ENV NODE_ENV=production
-ENV PCOS_PYTHON=python3
+ENV PCOS_PYTHON=python
 
 EXPOSE 5000
 
