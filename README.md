@@ -1,108 +1,110 @@
-FemWell – AI-Powered Women’s Health Analysis
+# FemWell AI — PCOS Screening Web App
 
-FemWell-AI-PCOS-Detection
+FemWell AI is a full‑stack web app that provides **PCOS screening insights** based on a short health assessment.
 
-📌 Project Overview
+> **Medical disclaimer:** This app provides screening insights only and is **not** a medical diagnosis.
 
-FemWell is an AI-powered web application developed during Forge Alumunus – Inspira 2025 (24-Hour Hackathon).
-The platform assists in women’s health screening by analyzing ultrasound images, survey responses, and lab results. It integrates machine learning with a secure web interface to provide early screening insights for conditions such as PCOS.
+## What’s included
 
-⚠️ FemWell is a screening tool and not a substitute for professional medical diagnosis.
+- **Password authentication** (email + password) with DB‑backed sessions (httpOnly cookie)
+- **Assessment wizard** that saves results to Postgres
+- **PCOS probability output** (0..1) + likelihood label (unlikely/possible/likely)
+- **Results & Profile pages** showing latest saved assessment
+- **Report Scanner UI** (upload UX; model integration can be added later)
 
-🛠️ Features
+## Tech stack
 
-✅ User Authentication
-Secure login and registration backed by MongoDB.
+- **Frontend:** React + Vite + TypeScript + Tailwind
+- **Backend:** Node.js + Express + TypeScript
+- **DB:** Postgres (Drizzle ORM) — typically hosted on Supabase
+- **ML:** Python + scikit‑learn model, executed by the Node server (via child process)
 
-✅ Analysis Dashboard
-Centralized access to all diagnostic and screening tools.
+## Monorepo layout
 
-✅ Ultrasound Image Analysis
-AI-based image classification using deep learning models.
+- `client/` — React app (Vite)
+- `server/` — Express API
+- `shared/` — shared Zod schemas/types
+- `dataset/` — training + inference scripts and model artifacts
 
-✅ Survey-Based Screening
-Personalized health survey analysis.
+## API endpoints (core)
 
-✅ Lab Results Comparison
-Hormone-level comparison for enhanced screening accuracy.
+| Route | Method | Description |
+|---|---:|---|
+| `/api/health` | GET | Health check (always 200) |
+| `/api/auth/register` | POST | Register (email + password) |
+| `/api/auth/login` | POST | Login and create session |
+| `/api/auth/logout` | POST | Logout |
+| `/api/auth/user` | GET | Current authenticated user |
+| `/api/assessments` | POST | Save an assessment + compute screening |
+| `/api/assessments/latest` | GET | Fetch latest saved assessment |
+| `/api/assessments/:id` | GET | Fetch assessment by id |
+| `/api/profile` | GET/PUT/DELETE | Profile CRUD |
 
-✅ Flask Web Application
-Smooth and responsive UI built with HTML, CSS, and JavaScript.
+## Environment variables
 
-🎯 Tech Stack
-Backend
+Create a `.env` file in the repo root.
 
-Flask
+Required:
 
-MongoDB
+```bash
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/postgres
+```
 
-Frontend
+Recommended (for hosted Postgres / Supabase):
 
-HTML
+```bash
+DATABASE_SSL=true
+```
 
-CSS
+Optional (ML runtime paths):
 
-JavaScript
+```bash
+PCOS_PYTHON=python3
+PCOS_PREDICT_SCRIPT=dataset/predict.py
+PCOS_MODEL_PATH=dataset/pcos_model.joblib
+```
 
-AI & ML
+## Run locally
 
-TensorFlow
+```bash
+npm install
+npm run db:push
+npm run dev
+```
 
-Keras
+Open:
 
-OpenCV
+- App: http://localhost:5000
+- Health check: http://localhost:5000/api/health
 
-scikit-learn
+## Model notes
 
-Database
+The screening model is a scikit‑learn pipeline. The server runs inference via `dataset/predict.py` and returns:
 
-MongoDB
+- `pcosProbability` (0..1)
+- `pcosLikelihood` (`unlikely` / `possible` / `likely`)
+- `modelVersion`
 
-📂 Project Structure
-FemWell/
-│-- static/
-│   │-- uploads/         # Uploaded ultrasound images
-│   │-- results/         # AI-processed output images
-│   │-- styles/          # CSS stylesheets
-│
-│-- templates/
-│   │-- login.html       # User login page
-│   │-- register.html    # User registration page
-│   │-- analysis.html    # Main dashboard
-│   │-- ultrasound.html  # Ultrasound AI analysis page
-│
-│-- app.py               # Main Flask application
-│-- bestmodel.h5         # Pre-trained AI model
-│-- requirements.txt     # Python dependencies
-│-- README.md            # Project documentation
+If Python inference fails, the server falls back to a lightweight rule‑based screening output.
 
-🔗 API Routes (Core)
-Route	Method	Description
-/api/auth/register	POST	Register user (email & password)
-/api/auth/login	POST	Login and create DB-backed session
-/api/auth/logout	POST	Logout and revoke session
-/api/auth/user	GET	Get current authenticated user
-/api/assessments	POST	Submit assessment and compute ML result
-/api/assessments/latest	GET	Fetch latest assessment
-/api/assessments/:id	GET	Fetch assessment by ID
-/scanner	GET (UI)	Ultrasound report upload interface
-🤖 AI Model Details
+## Deployment
 
-Model Type: Logistic Regression (scikit-learn pipeline)
+### Backend (Render)
 
-Output:
+This repo includes a Docker-based deployment.
 
-pcosProbability → Value between 0–1
+- Render Web Service uses `Dockerfile`
+- Set `DATABASE_URL` (and optionally `DATABASE_SSL=true`) in Render environment variables
+- Verify: `https://<render-service>.onrender.com/api/health`
 
-pcosLikelihood → Unlikely / Possible / Likely
+### Frontend (Netlify)
 
-Purpose:
-Early screening support (not a medical diagnosis)
+Netlify hosts the static frontend and proxies `/api/*` to Render.
 
-📞 Contact
+- `netlify.toml` proxies `/api/*` → Render
+- SPA routing is enabled via a fallback redirect to `/index.html`
 
-For questions, feedback, or collaboration:
+## Security notes
 
-📧 karrinileshreddy@gmail.com
-
-📧 saimanvitha.chevuru.1@gmail.com
+- Do **not** commit real `DATABASE_URL` secrets to Git.
+- If a secret ever leaks, rotate it in your DB provider and update Render env vars.
