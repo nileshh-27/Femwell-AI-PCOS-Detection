@@ -10,6 +10,42 @@ import { assessments, insertAssessmentSchema, profiles, upsertProfileSchema } fr
 import { and, desc, eq } from "drizzle-orm";
 import { computeAssessmentResult } from "./lib/assessment";
 
+function clamp(num: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, num));
+}
+
+function likelihoodFromProbability(p: number): "unlikely" | "possible" | "likely" {
+  if (p >= 0.66) return "likely";
+  if (p >= 0.33) return "possible";
+  return "unlikely";
+}
+
+function deriveScreeningFromStored(row: any) {
+  // If the record already contains explicit screening fields, prefer them.
+  if (row?.pcosLikelihood && row?.modelVersion) {
+    return {
+      pcosLikelihood: String(row.pcosLikelihood) as "unlikely" | "possible" | "likely",
+      pcosPossible: Boolean(row.pcosPossible),
+      pcosProbability: clamp(Number(row.pcosProbability ?? (row.confidence != null ? Number(row.confidence) / 100 : 0.5)), 0, 1),
+      modelVersion: String(row.modelVersion),
+    };
+  }
+
+  // Otherwise derive a stable value from stored confidence (percent).
+  const pcosProbability = clamp(
+    row?.confidence != null ? Number(row.confidence) / 100 : row?.riskScore === "high" ? 0.8 : row?.riskScore === "medium" ? 0.5 : 0.2,
+    0,
+    1,
+  );
+  const pcosLikelihood = likelihoodFromProbability(pcosProbability);
+  return {
+    pcosLikelihood,
+    pcosPossible: pcosLikelihood !== "unlikely",
+    pcosProbability,
+    modelVersion: "derived-from-confidence-v1",
+  };
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -115,7 +151,7 @@ export async function registerRoutes(
       .limit(1);
 
     if (!row) return res.status(404).json({ message: "Not found" });
-    const screening = await computeAssessmentResult(row);
+    const screening = deriveScreeningFromStored(row);
     return res.json({ ...row, ...screening });
   });
 
@@ -131,7 +167,7 @@ export async function registerRoutes(
       .limit(1);
 
     if (!row) return res.status(404).json({ message: "Not found" });
-    const screening = await computeAssessmentResult(row);
+    const screening = deriveScreeningFromStored(row);
     return res.json({ ...row, ...screening });
   });
 
