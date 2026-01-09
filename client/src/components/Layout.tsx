@@ -10,16 +10,17 @@ export function Layout({ children }: { children: ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [location, setLocation] = useLocation();
 
-  const handleLogout = () => {
-    localStorage.removeItem("femwell_auth");
-    window.location.href = "/auth";
-  };
-
   const navItems = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
     { href: "/assessment", label: "Check Risk", icon: Activity },
     { href: "/guidance", label: "Guidance", icon: BookOpen },
     { href: "/about", label: "Resources", icon: Info },
+  ];
+
+  const accountItems = [
+    { href: "/profile", label: "Profile", icon: User },
+    { href: "/settings", label: "Settings", icon: Settings },
+    { href: "/signout", label: "Sign out", icon: LogOut, tone: "destructive" as const },
   ];
 
   return (
@@ -60,14 +61,33 @@ export function Layout({ children }: { children: ReactNode }) {
           <div className="px-4 pt-8 mb-4">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Account</p>
           </div>
-          <button className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-primary/5 hover:text-primary transition-all duration-200 rounded-2xl group">
-            <User className="w-5 h-5 group-hover:text-primary" />
-            Profile
-          </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-primary/5 hover:text-primary transition-all duration-200 rounded-2xl group">
-            <Settings className="w-5 h-5 group-hover:text-primary" />
-            Settings
-          </button>
+          {accountItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-200 rounded-2xl group",
+                item.tone === "destructive"
+                  ? "text-destructive hover:bg-destructive/5"
+                  : undefined,
+                location === item.href
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-[1.02]"
+                  : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
+              )}
+            >
+              <item.icon
+                className={cn(
+                  "w-5 h-5",
+                  location === item.href
+                    ? "text-white"
+                    : item.tone === "destructive"
+                      ? "text-destructive"
+                      : "group-hover:text-primary"
+                )}
+              />
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="p-6 mt-auto border-t border-border/40">
@@ -76,13 +96,6 @@ export function Layout({ children }: { children: ReactNode }) {
             <p className="text-xs text-muted-foreground leading-relaxed mb-4">Get personalized consultation with specialists.</p>
             <Button size="sm" className="w-full rounded-xl text-xs h-8">Learn More</Button>
           </div>
-          <button 
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/5 transition-all duration-200 rounded-2xl group"
-          >
-            <LogOut className="w-5 h-5" />
-            Logout
-          </button>
         </div>
       </aside>
 
@@ -130,13 +143,32 @@ export function Layout({ children }: { children: ReactNode }) {
                     {item.label}
                   </Link>
                 ))}
-                <button 
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-4 text-xl font-medium p-4 text-destructive"
-                >
-                  <LogOut className="w-6 h-6" />
-                  Logout
-                </button>
+
+                <div className="pt-6">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-4 mb-3">
+                    Account
+                  </p>
+                  <div className="space-y-3">
+                    {accountItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-4 text-xl font-medium p-4 rounded-2xl",
+                          item.tone === "destructive"
+                            ? "text-destructive"
+                            : location === item.href
+                              ? "bg-primary text-white"
+                              : "text-muted-foreground"
+                        )}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <item.icon className="w-6 h-6" />
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
               </nav>
             </motion.div>
           )}

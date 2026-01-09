@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-import { api, type insertAssessmentSchema } from "@shared/routes";
+import { api } from "@shared/routes";
 import { z } from "zod";
 
-type AssessmentInput = z.infer<typeof insertAssessmentSchema>;
+type AssessmentInput = z.infer<typeof api.assessment.submit.input>;
 type AssessmentResponse = z.infer<typeof api.assessment.submit.responses[200]>;
 
 export function useSubmitAssessment() {
@@ -24,6 +24,7 @@ export function useSubmitAssessment() {
         method: api.assessment.submit.method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validated),
+        credentials: "include",
       });
 
       if (!res.ok) {

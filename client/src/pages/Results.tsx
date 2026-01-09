@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { motion } from "framer-motion";
-import { AlertCircle, CheckCircle, ArrowRight, RefreshCw, BookOpen } from "lucide-react";
+import { AlertCircle, CheckCircle, RefreshCw, BookOpen, Activity } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
 
 interface ResultData {
   riskScore: "low" | "medium" | "high";
@@ -14,15 +16,38 @@ interface ResultData {
 export default function Results() {
   const [result, setResult] = useState<ResultData | null>(null);
   const [, setLocation] = useLocation();
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
-    const stored = localStorage.getItem("assessmentResult");
-    if (!stored) {
-      setLocation("/assessment");
-      return;
-    }
-    setResult(JSON.parse(stored));
-  }, [setLocation]);
+    const load = async () => {
+      if (isLoading) return;
+      if (!isAuthenticated) {
+        setLocation("/auth");
+        return;
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+
+      try {
+        const res = id
+          ? await apiRequest("GET", `/api/assessments/${encodeURIComponent(id)}`)
+          : await apiRequest("GET", "/api/assessments/latest");
+
+        const row = (await res.json()) as any;
+        setResult({
+          riskScore: row.riskScore,
+          confidence: row.confidence,
+          contributingFactors: row.contributingFactors ?? [],
+          recommendations: row.recommendations ?? [],
+        });
+      } catch {
+        setLocation("/assessment");
+      }
+    };
+
+    void load();
+  }, [setLocation, isAuthenticated, isLoading]);
 
   if (!result) return null;
 
@@ -149,7 +174,10 @@ export default function Results() {
           <BookOpen className="w-5 h-5 mr-2" />
           View Detailed Guidance
         </Link>
-        <Link href="/assessment" onClick={() => localStorage.removeItem("assessmentResult")} className="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-white border border-border text-foreground font-bold hover:bg-muted transition-all">
+        <Link
+          href="/assessment"
+          className="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-white border border-border text-foreground font-bold hover:bg-muted transition-all"
+        >
           <RefreshCw className="w-5 h-5 mr-2" />
           Retake Assessment
         </Link>

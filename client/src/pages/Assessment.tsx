@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, ArrowRight, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, Activity } from "lucide-react";
 import { insertAssessmentSchema } from "@shared/schema";
-import { useSubmitAssessment } from "@/hooks/use-assessment";
 import { Steps } from "@/components/ui/Steps";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 // We'll validate step-by-step, but the final submit uses the full schema
 type FormData = z.infer<typeof insertAssessmentSchema>;
@@ -23,7 +25,15 @@ const STEPS = [
 export default function Assessment() {
   const [step, setStep] = useState(1);
   const [, setLocation] = useLocation();
-  const submitMutation = useSubmitAssessment();
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthLoading && !isAuthenticated) {
+      setLocation("/auth");
+    }
+  }, [isAuthLoading, isAuthenticated, setLocation]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(insertAssessmentSchema),
@@ -56,16 +66,25 @@ export default function Assessment() {
 
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
-  const onSubmit = (data: FormData) => {
-    submitMutation.mutate(data, {
-      onSuccess: (result) => {
-        // Pass result via state or just navigate and refetch? 
-        // For simplicity, we'll store in localStorage or pass in navigation state
-        // Wouter doesn't support state in navigation easily, so let's use localStorage for this demo
-        localStorage.setItem("assessmentResult", JSON.stringify(result));
-        setLocation("/results");
-      },
-    });
+  const onSubmit = async (data: FormData) => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Please sign in",
+        description: "You must be signed in to save your assessment.",
+        variant: "destructive",
+      });
+      setLocation("/auth");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await apiRequest("POST", "/api/assessments", data);
+      const json = (await res.json()) as { id: number };
+      setLocation(json?.id ? `/results?id=${encodeURIComponent(String(json.id))}` : "/results");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const pageVariants = {
@@ -96,7 +115,7 @@ export default function Assessment() {
               className="space-y-6 w-full"
             >
               {/* STEP 1: Personal */}
-              {step === 1 && (
+              {step === 1 ? (
                 <div className="space-y-6">
                   <h2 className="text-2xl font-display font-semibold">Let's start with the basics</h2>
                   
@@ -142,7 +161,7 @@ export default function Assessment() {
                     )}
                   </div>
                 </div>
-              )}
+              ) : null}
 
               {/* STEP 2: Cycle */}
               {step === 2 && (
@@ -300,10 +319,10 @@ export default function Assessment() {
           ) : (
             <button
               type="submit"
-              disabled={submitMutation.isPending}
+              disabled={isSubmitting}
               className="px-8 py-3 rounded-xl font-bold bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
             >
-              {submitMutation.isPending ? (
+              {isSubmitting ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
                   Analyzing...

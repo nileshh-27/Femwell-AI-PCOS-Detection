@@ -5,8 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/Layout";
 import NotFound from "@/pages/not-found";
-import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 // Pages
 import Home from "@/pages/Home";
@@ -15,25 +15,17 @@ import Results from "@/pages/Results";
 import Guidance from "@/pages/Guidance";
 import About from "@/pages/About";
 import AuthPage from "@/pages/AuthPage";
+import Profile from "@/pages/Profile";
+import Settings from "@/pages/Settings";
+import SignOut from "@/pages/SignOut";
 
 function Router() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const { isAuthenticated, isLoading } = useAuth();
 
-  useEffect(() => {
-    const checkAuth = () => {
-      const auth = localStorage.getItem("femwell_auth") === "true";
-      setIsAuthenticated(auth);
-    };
-    
-    checkAuth();
-    window.addEventListener('storage', checkAuth);
-    return () => window.removeEventListener('storage', checkAuth);
-  }, []);
-
-  if (isAuthenticated === null) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+      <div className="flex items-center justify-center min-h-screen bg-background/50">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -41,11 +33,11 @@ function Router() {
   return (
     <Switch>
       <Route path="/auth">
-        {isAuthenticated ? <Redirect to="/" /> : <AuthPage />}
+        <AuthPage />
       </Route>
       
       {!isAuthenticated ? (
-        <Route path="/:rest*">
+        <Route>
           <Redirect to="/auth" />
         </Route>
       ) : (
@@ -56,6 +48,9 @@ function Router() {
             <Route path="/results" component={Results} />
             <Route path="/guidance" component={Guidance} />
             <Route path="/about" component={About} />
+            <Route path="/profile" component={Profile} />
+            <Route path="/settings" component={Settings} />
+            <Route path="/signout" component={SignOut} />
             <Route component={NotFound} />
           </Switch>
         </Layout>
