@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: femwellai-api
+    env: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /api/auth/user
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PCOS_PYTHON
+        value: python3
+      # Set DATABASE_URL in the Render dashboard (secret)

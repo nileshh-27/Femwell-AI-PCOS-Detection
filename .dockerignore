@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.vscode
+.DS_Store
+
+# Build output created during image build
+/dist
+
+# Local Python env
+.venv
+
+# Training-only datasets (not required at runtime)
+/dataset/pcos_train.csv
+/dataset/pcos_test.csv
