@@ -1,11 +1,11 @@
 FemWell – AI-Powered PCOS Screening
 
-FemWell-AI-PCOS-Detection
-
 📌 Project Overview
 
 FemWell is an AI-powered web application developed during Forge Alumunus – Inspira 2025 (24-Hour Hackathon).
 It assists in women’s health screening by analyzing ultrasound images, survey responses, and lab results, providing early screening insights for PCOS using machine learning.
+
+You can check out the live project via this link : ` "https://femwell.netlify.app/" `
 
 ⚠️ FemWell is a screening tool and not a substitute for professional medical diagnosis.
 
